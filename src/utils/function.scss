@@ -36,7 +36,7 @@
 @mixin margin_padding($size, $attribute) {
   //margin
 
-  @if ($size == 0 and $attribute == '') {
+  @if ($size == 0 or $attribute == '') {
 
     .margin--#{$size} {
       margin: #{$size}px !important;

@@ -1,11 +1,18 @@
 <html>
 <head>
-    <link rel="stylesheet" href="../dist/cssatome.min.css"/>
-
+    <link rel="stylesheet" href="../dist/cssatome.css"/>
+    <style>
+        .grid{
+            background-color: red;
+        }
+        .grid>.cell{
+            background-color: blue;
+        }
+    </style>
 </head>
 <body>
 <div class="grid">
-    <div class="cell cell--12-col">
+    <div class="cell cell--12-col text-align--center text-align--left-phone text-align--right-tablet">
         12
     </div>
     <div class="cell cell--6-col">
@@ -13,6 +20,9 @@
     </div>
     <div class="cell cell--6-col">
         6
+    </div>
+    <div class="cell cell--6-col cell--hide-phone">
+        HIDDEN ON PHONE
     </div>
 </div>
 </body>
