@@ -1,0 +1,30 @@
+{
+  "name": "css-atom",
+  "version": "0.0.1",
+  "description": "CSS Atom Tool",
+  "main": "index.js",
+  "scripts": {
+    "build": "node-sass --include-path sass src/index.scss dist/cssatome.css",
+    "min": "css-minify  --dir dist --file dist/cssatome.css -o dist/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/intranetsfr/css-atom.git"
+  },
+  "keywords": [
+    "grid",
+    "atom",
+    "css"
+  ],
+  "author": "ROTY Jeremy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/intranetsfr/css-atom/issues"
+  },
+  "homepage": "https://github.com/intranetsfr/css-atom#readme",
+  "devDependencies": {
+    "css-minify": "^2.0.0",
+    "node-sass": "^7.0.2"
+  }
+}

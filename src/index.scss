@@ -1,0 +1,85 @@
+
+@import "./utils/_functions";
+@import "./utils/_variables";
+@import "./utils/function";
+@import "./texts/text";
+$sizes: 0 2 4 6 8 10 12 14 16 18 20 22 24 26 28 32 38 38 40 42 44 48 52 60 64 72 84 92;
+$radiused: 0 1 2 3 4 5 6 8 10 12 14 16 18 20 24 28 30 32;
+
+
+$colors: black blue green red yellow white;
+
+/*BORDER RADIUS*/
+@each $radius in $radiused {
+  .round--#{$radius} {
+    border-radius: #{$radius}px;
+  }
+  .rotate--#{$radius} {
+    display: inline-block;
+    transform: rotate(#{$radius}deg);
+  }
+  .rotate--#{$radius}-neg {
+    display: inline-block;
+    transform: rotate(-#{$radius}deg);
+  }
+}
+
+@include text_style('');
+@each $size in $sizes {
+  @include margin_padding($size, '');
+  @include margin_padding_neg($size, "neg");
+}
+
+////////// Phone //////////
+@media (max-width: $grid-tablet-breakpoint - 1){
+  @each $size in $sizes {
+    /*
+    margin on phone
+    */
+    @include text_fs($size, "phone");
+    @include margin_padding($size, "phone");
+    @include margin_padding_neg($size, "neg-phone");
+  }
+
+  @include text_style("phone");
+}
+
+////////// tablet //////////
+@media (min-width: $grid-tablet-breakpoint) and (max-width: $grid-desktop-breakpoint - 1) {
+
+  @include text_style("tablet");
+  @each $size in $sizes {
+    /*
+    margin on tablet
+    */
+    @include text_fs($size, "tablet");
+    @include margin_padding($size, "tablet");
+    @include margin_padding_neg($size, "neg-tablet");
+  }
+}
+
+////////// Desktop //////////
+
+@media (min-width: $grid-desktop-breakpoint) {
+
+  @include text_style("desktop");
+  @each $size in $sizes {
+
+    /*
+    text size on desktop
+    */
+    @include text_fs($size, "desktop");
+    /*
+    margin/padding on desktop
+    */
+    @include margin_padding($size, "desktop");
+
+    /*
+    margin/padding NEGATIVE on desktop
+    */
+    @include margin_padding_neg($size, "neg-desktop");
+  }
+}
+.full{
+  width: 100% !important;
+}
