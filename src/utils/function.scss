@@ -34,8 +34,8 @@
 }
 
 @mixin margin_padding($size, $attribute) {
-  //margin
 
+  
   @if ($size == 0 or $attribute == '') {
 
     .margin--#{$size} {
@@ -44,64 +44,63 @@
     .padding--#{$size} {
       padding: #{$size}px !important;
     }
+  }
+  
+  @if $attribute == '' {
+    // margin
+    .margin-top--#{$size} {
+      margin-top: #{$size}px !important;
+    }
+    .margin-bottom--#{$size} {
+      margin-bottom: #{$size}px !important;
+    }
+    .margin-left--#{$size} {
+      margin-left: #{$size}px !important;
+    }
+    .margin-right--#{$size} {
+      margin-right: #{$size}px !important;
+    }
+
+    //padding
+    .padding-top--#{$size} {
+      padding-top: #{$size}px !important;
+    }
+    .padding-bottom--#{$size} {
+      padding-bottom: #{$size}px !important;
+    }
+    .padding-left--#{$size} {
+      padding-left: #{$size}px !important;
+    }
+    .padding-right--#{$size} {
+      padding-right: #{$size}px !important;
+    }
   } @else {
 
-    @if $attribute == '' {
+    .margin-top--#{$size}-#{$attribute} {
+      margin-top: #{$size}px !important;
+    }
+    .margin-bottom--#{$size}-#{$attribute} {
+      margin-bottom: #{$size}px !important;
+    }
+    .margin-left--#{$size}-#{$attribute} {
+      margin-left: #{$size}px !important;
+    }
+    .margin-right--#{$size}-#{$attribute} {
+      margin-right: #{$size}px !important;
+    }
 
-      .margin-top--#{$size} {
-        margin-top: #{$size}px !important;
-      }
-      .margin-bottom--#{$size} {
-        margin-bottom: #{$size}px !important;
-      }
-      .margin-left--#{$size} {
-        margin-left: #{$size}px !important;
-      }
-      .margin-right--#{$size} {
-        margin-right: #{$size}px !important;
-      }
-
-      //padding
-      .padding-top--#{$size} {
-        padding-top: #{$size}px !important;
-      }
-      .padding-bottom--#{$size} {
-        padding-bottom: #{$size}px !important;
-      }
-      .padding-left--#{$size} {
-        padding-left: #{$size}px !important;
-      }
-      .padding-right--#{$size} {
-        padding-right: #{$size}px !important;
-      }
-    } @else {
-
-      .margin-top--#{$size}-#{$attribute} {
-        margin-top: #{$size}px !important;
-      }
-      .margin-bottom--#{$size}-#{$attribute} {
-        margin-bottom: #{$size}px !important;
-      }
-      .margin-left--#{$size}-#{$attribute} {
-        margin-left: #{$size}px !important;
-      }
-      .margin-right--#{$size}-#{$attribute} {
-        margin-right: #{$size}px !important;
-      }
-
-      //padding
-      .padding-top--#{$size}-#{$attribute} {
-        padding-top: #{$size}px !important;
-      }
-      .padding-bottom--#{$size}-#{$attribute} {
-        padding-bottom: #{$size}px !important;
-      }
-      .padding-left--#{$size}-#{$attribute} {
-        padding-left: #{$size}px !important;
-      }
-      .padding-right--#{$size}-#{$attribute} {
-        padding-right: #{$size}px !important;
-      }
+    //padding
+    .padding-top--#{$size}-#{$attribute} {
+      padding-top: #{$size}px !important;
+    }
+    .padding-bottom--#{$size}-#{$attribute} {
+      padding-bottom: #{$size}px !important;
+    }
+    .padding-left--#{$size}-#{$attribute} {
+      padding-left: #{$size}px !important;
+    }
+    .padding-right--#{$size}-#{$attribute} {
+      padding-right: #{$size}px !important;
     }
   }
 }

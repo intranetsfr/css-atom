@@ -1,10 +1,11 @@
-
 @mixin text_fs($size, $attribute) {
-  @if $attribute != '' {
-    .text-fs--#{$size}--#{$attribute} {
+  @if $attribute !='' {
+    .text-fs--#{$size}-#{$attribute} {
       font-size: #{$size}px;
     }
-  } @else {
+  }
+
+  @else {
     .text-fs--#{$size} {
       font-size: #{$size}px;
       line-height: #{$size}px;
@@ -13,17 +14,20 @@
 }
 
 @mixin text_style($attribute) {
-  @if ($attribute != '') {
+  @if ($attribute !='') {
 
     .text-align--center-#{$attribute} {
       text-align: center;
     }
+
     .text-align--left-#{$attribute} {
       text-align: left;
     }
+
     .text-align--right-#{$attribute} {
       text-align: right;
     }
+
     .text-align--justify-#{$attribute} {
       text-align: justify;
     }
@@ -31,9 +35,11 @@
     .text-style--normal-#{$attribute} {
       font-style: normal;
     }
+
     .text-style--italic-#{$attribute} {
       font-style: italic;
     }
+
     .text-style--oblique-#{$attribute} {
       font-style: oblique;
     }
@@ -41,17 +47,22 @@
     .content-justify--center-#{$attribute} {
       justify-content: center;
     }
-  } @else {
+  }
+
+  @else {
 
     .text-align--center {
       text-align: center;
     }
+
     .text-align--left {
       text-align: left;
     }
+
     .text-align--right {
       text-align: right;
     }
+
     .text-align--justify {
       text-align: justify;
     }
@@ -59,9 +70,11 @@
     .text-style--normal {
       font-style: normal;
     }
+
     .text-style--italic {
       font-style: italic;
     }
+
     .text-style--oblique {
       font-style: oblique;
     }
