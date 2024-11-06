@@ -1,6 +1,6 @@
 {% set menu = false %}
-{% macro renderTree(tree, level) %}
-    <ul>
+{% macro renderTree(tree, level, filename) %}
+    <ul class="tree_list">
         {% for index, item in tree %}
             <li>
                 <a href="javascript:select({{ index}}, {{level}})"
@@ -10,9 +10,11 @@
                     {% if item.class is not empty %}
                         (Classes: {{ item.class | join(', ') }})
                     {% endif %}
+                    <a href="/editor/tree/{{filename}}?tagIndex={{index}}&level={{level}}&add=true">➕ add</a>
+                    <a href="/editor/tree/{{filename}}?tagIndex={{index}}&level={{level}}&add=true">📁 copy</a>
                 </a>
                 {% if item.children is not empty %}
-                    {{ _self.renderTree(item.children, level + 1) }}
+                    {{ _self.renderTree(item.children, level + 1, filename) }}
                 {% endif %}
             </li>
         {% endfor %}
@@ -24,8 +26,7 @@
 {% block body %}
 
     <body class="margin--0">
-        <!-- Démarre avec le niveau 1 pour la racine -->
-        {{ renderTree(tree, 0) }}
+        {{ renderTree(tree, 0, filename) }}
         <script>
             function findElementByIndexAndLevel(root, tagIndex, level, currentLevel = -1, currentIndex = { value: -1 }) {
                

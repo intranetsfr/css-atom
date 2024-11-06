@@ -5,6 +5,59 @@ const { JSDOM } = require("jsdom");
 module.exports = (app) => {
   const router = require("express").Router();
   const testFolder = "./saved/";
+
+  function findNodeByIndexAndLevel(
+    nodes,
+    targetIndex,
+    targetLevel,
+    currentLevel = 0
+  ) {
+    if (currentLevel === targetLevel) {
+      return nodes[targetIndex];
+    }
+    for (const node of nodes) {
+      if (node.children) {
+        const foundNode = findNodeByIndexAndLevel(
+          node.children,
+          targetIndex,
+          targetLevel,
+          currentLevel + 1
+        );
+        if (foundNode) return foundNode;
+      }
+    }
+    return null;
+  }
+
+  function findElementByIndexAndLevel(
+    root,
+    tagIndex,
+    level,
+    currentLevel = -1,
+    currentIndex = { value: -1 }
+  ) {
+    if (currentLevel === level) {
+      currentIndex.value++;
+      if (currentIndex.value === tagIndex) {
+        return root;
+      }
+    }
+
+    for (let child of root.children) {
+      const found = findElementByIndexAndLevel(
+        child,
+        tagIndex,
+        level,
+        currentLevel + 1,
+        currentIndex
+      );
+      if (found) {
+        return found;
+      }
+    }
+    return null;
+  }
+
   router.get("/", (req, res) => {
     let data = {};
     data.title = "Editor";
@@ -55,28 +108,31 @@ module.exports = (app) => {
       res.render("editor/render", data);
     });
   });
+  const htmlparser2 = require("htmlparser2");
+  const fs = require("fs");
 
   router.get("/tree/:filename.html", (req, res) => {
     let data = {};
     data.title = "Editor";
     let filename = req.params.filename;
     data.filename = `${filename}.html`;
+    const { tagIndex, level, add } = req.query; // Extraction des paramètres de requête
+    const filePath = `${testFolder}${data.filename}`;
 
-    fs.readFile(`${testFolder}${data.filename}`, "utf8", (err, contentFile) => {
+    fs.readFile(filePath, "utf8", (err, contentFile) => {
       if (err) {
         console.error(err);
         data.error = err;
         res.render("editor/render", data);
         return;
       }
-
-      // Fonction récursive pour construire l'arbre des éléments
       function parseNode(node) {
         if (node.type === "tag") {
           const parsedNode = {
             tag: node.name,
             class: node.attribs.class ? node.attribs.class.split(" ") : [],
             children: [],
+            nodeRef: node, // Référence vers le nœud original pour les modifications
           };
 
           if (node.children) {
@@ -86,16 +142,59 @@ module.exports = (app) => {
           }
           return parsedNode;
         }
-        return null; // Ignorer les autres types de nœuds (comme texte brut)
+        return null;
       }
 
-      // Analyse du contenu HTML et création de l'arborescence
       const dom = htmlparser2.parseDocument(contentFile).children;
       const tree = dom.map(parseNode).filter((node) => node); // Filtrer les `null`
 
-      // Assigner l'arborescence au champ data et l'envoyer à la vue
-      data.tree = tree;
-      res.render("editor/tree", data);
+      // Vérifier si on doit ajouter un élément
+      if (add === "true" && tagIndex !== undefined && level !== undefined) {
+        const targetNode = findNodeByIndexAndLevel(
+          tree,
+          parseInt(tagIndex, 10),
+          parseInt(level, 10)
+        );
+
+        if (targetNode) {
+          // Création d'un nouvel élément div sans classe
+          const newDiv = {
+            type: "tag",
+            name: "div",
+            attribs: { class: "" },
+            children: [],
+          };
+
+          // Ajout du nouvel élément au conteneur cible
+          targetNode.nodeRef.children.push(newDiv);
+
+          // Sérialisation du DOM modifié et écriture dans le fichier
+          const updatedHTML = dom
+            .map((node) => htmlparser2.DomUtils.getOuterHTML(node))
+            .join("");
+
+          fs.writeFile(filePath, updatedHTML, "utf8", (writeErr) => {
+            if (writeErr) {
+              console.error(writeErr);
+              return res
+                .status(500)
+                .send("Erreur lors de l'écriture du fichier");
+            }
+            // Réponse confirmant la réussite de l'ajout
+            data.tree = tree;
+            //res.render("editor/tree", data);
+            res.redirect(
+              `/editor/tree/${filename}.html?tagIndex=${tagIndex}&level=${level}`
+            );
+          });
+        } else {
+          res.status(404).send("Conteneur cible introuvable");
+        }
+      } else {
+        // Sinon, on affiche simplement l'arbre
+        data.tree = tree;
+        res.render("editor/tree", data);
+      }
     });
   });
 
@@ -121,36 +220,6 @@ module.exports = (app) => {
       const dom = new JSDOM(html);
       const document = dom.window.document;
 
-      // Fonction de recherche de l'élément par tagIndex et level
-      function findElementByIndexAndLevel(
-        root,
-        tagIndex,
-        level,
-        currentLevel = -1,
-        currentIndex = { value: -1 }
-      ) {
-        if (currentLevel === level) {
-          currentIndex.value++;
-          if (currentIndex.value === tagIndex) {
-            return root;
-          }
-        }
-
-        for (let child of root.children) {
-          const found = findElementByIndexAndLevel(
-            child,
-            tagIndex,
-            level,
-            currentLevel + 1,
-            currentIndex
-          );
-          if (found) {
-            return found;
-          }
-        }
-        return null;
-      }
-
       // Démarrer la recherche à partir de `<body>`
       const element = findElementByIndexAndLevel(
         document.body,
@@ -167,7 +236,6 @@ module.exports = (app) => {
       }
       data.update = req.query.update;
       res.render("editor/proprety", data);
-
     });
   });
 
@@ -178,48 +246,15 @@ module.exports = (app) => {
     const newTag = req.body.tag; // Nouveau tag choisi
     const newClasses = req.body.classes || []; // Nouvelles classes envoyées par le formulaire
     const filepath = `${testFolder}${filename}.html`;
-    
+
     // Lire le fichier HTML
     fs.readFile(filepath, "utf8", (err, html) => {
       if (err) {
         console.error(err);
         return res.status(500).send("Erreur de lecture du fichier");
       }
-
-      // Utiliser jsdom pour manipuler le DOM
       const dom = new JSDOM(html);
-      
       const document = dom.window.document;
-      //console.log("Contenu de <body>: ", document.body.innerHTML);
-
-      function findElementByIndexAndLevel(
-        root,
-        tagIndex,
-        level,
-        currentLevel = -1,
-        currentIndex = { value: -1 }
-      ) {
-        if (currentLevel === level) {
-          currentIndex.value++;
-          if (currentIndex.value === tagIndex) {
-            return root;
-          }
-        }
-
-        for (let child of root.children) {
-          const found = findElementByIndexAndLevel(
-            child,
-            tagIndex,
-            level,
-            currentLevel + 1,
-            currentIndex
-          );
-          if (found) {
-            return found;
-          }
-        }
-        return null;
-      }
       const element = findElementByIndexAndLevel(
         document.body,
         tagIndex,
@@ -227,8 +262,8 @@ module.exports = (app) => {
       );
       if (element) {
         const newElement = document.createElement(newTag);
-        newElement.innerHTML = element.innerHTML; 
-        
+        newElement.innerHTML = element.innerHTML;
+
         newElement.className = newClasses.join(" ");
         element.replaceWith(newElement);
 
@@ -238,7 +273,9 @@ module.exports = (app) => {
             console.error(writeErr);
             return res.status(500).send("Erreur lors de l'écriture du fichier");
           }
-          res.redirect(`/editor/proprety/${filename}.html?tagIndex=${tagIndex}&level=${level}&update=true`)
+          res.redirect(
+            `/editor/proprety/${filename}.html?tagIndex=${tagIndex}&level=${level}&update=true`
+          );
         });
       } else {
         res.status(404).send("Élément non trouvé");

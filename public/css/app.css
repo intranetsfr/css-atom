@@ -1,17 +1,54 @@
 body {
-    background-color: gainsboro;
+    background-color: rgba(255, 255, 255, .21);
 }
 .cell{
     background-color: red;
     padding: 10px;
-}
-a{
-    text-decoration: none;
-}
-a:hover{
-    text-decoration: underline;
-}
+} 
 .highlight{
-    background-color: rgba(0, 100, 0, .21);
-    
+    background-color: rgba(0, 100, 0, .1);
+}ul.tree_list {
+    padding-left: 15px; /* Déplacement des sous-éléments */
+    margin: 0;
+    border-left: 2px solid #333; /* Ligne verticale pour indiquer la hiérarchie */
+}
+
+ul.tree_list li {
+    margin: 5px 0;
+    list-style-type: none;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: rgba(249, 249, 249, .3);
+    position: relative;
+}
+
+ul.tree_list li::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -15px;
+    width: 10px;
+    height: 2px;
+    background-color: #333;
+    transform: translateY(-50%);
+}
+
+ul.tree_list li:hover {
+    background-color: rgba(224, 224, 224, .3); /* Couleur d'arrière-plan au survol */
+}
+
+a, select, button, input{
+    border: 1px solid #333;
+    color: #333;
+    text-decoration: none;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 18px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+ a:hover {
+    background-color: #333;
+    color: white;
 }
