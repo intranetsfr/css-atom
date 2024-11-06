@@ -1,10 +1,94 @@
 {% set menu = false %}
-{% extends "../templates/layout.twig" %}
+{% macro renderTree(tree, level) %}
+    <ul>
+        {% for index, item in tree %}
+            <li>
+                <a href="javascript:select({{ index}}, {{level}})"
+                   onmouseover="highlightElement({{ index }}, {{ level }})"
+                   onmouseout="removeHighlight({{ index }}, {{ level }})">
+                    <strong>{{ item.tag }}</strong>
+                    {% if item.class is not empty %}
+                        (Classes: {{ item.class | join(', ') }})
+                    {% endif %}
+                </a>
+                {% if item.children is not empty %}
+                    {{ _self.renderTree(item.children, level + 1) }}
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endmacro %}
 
+{% from _self import renderTree %}
+{% extends "../templates/layout.twig" %}
 {% block body %}
 
-	<body class="margin--0">
-		tree
-	</body>
-{% endblock %}
+    <body class="margin--0">
+        <!-- Démarre avec le niveau 1 pour la racine -->
+        {{ renderTree(tree, 0) }}
+        <script>
+            function findElementByIndexAndLevel(root, tagIndex, level, currentLevel = 0, currentIndex = { value: -1 }) {
+                // Ajuster le point de départ pour ignorer le niveau du `<body>` ou `<main>`
+                if (root.tagName === 'BODY' || root.tagName === 'MAIN') {
+                    currentLevel--; // Réduit d'un niveau pour ne pas compter <body> ou <main>
+                }
 
+                // Vérifier si on a atteint le niveau souhaité
+                if (currentLevel === level) {
+                    currentIndex.value++; // Incrémenter le compteur pour l'index
+                    if (currentIndex.value === tagIndex) {
+                        return root; // On a trouvé l'élément
+                    }
+                }
+
+                // Parcourir les enfants pour continuer la recherche
+                for (let child of root.children) {
+                    const found = findElementByIndexAndLevel(child, tagIndex, level, currentLevel + 1, currentIndex);
+                    if (found) {
+                        return found; // Retourner l'élément si trouvé
+                    }
+                }
+
+                return null; // Retourne null si l'élément n'est pas trouvé
+            }
+
+            function highlightElement(tagIndex, level) {
+                const frameDocument = window.parent.frames[0].document;
+
+                // Commence la recherche dans le `<main>` pour ignorer `<body>` et `<main>`
+                const element = findElementByIndexAndLevel(frameDocument.querySelector('main'), tagIndex, level);
+
+                if (element) {
+                    element.classList.add('highlight');
+                }
+            }
+
+            function removeHighlight(tagIndex, level) {
+                const frameDocument = window.parent.frames[0].document;
+
+                const element = findElementByIndexAndLevel(frameDocument.querySelector('main'), tagIndex, level);
+
+                if (element) {
+                    element.classList.remove('highlight');
+                }
+            }
+            function select(tagIndex, level) {
+                let parent = window.parent;
+                let frames = parent.document.getElementById("frames");
+                const frameDocument = window.parent.frames[2].document;
+                let filename = "{{filename}}";
+                parent[2].location.href = `/editor/proprety/${filename}?tagIndex=${tagIndex}&level=${level}`;
+                frames.setAttribute("rows", "50%,50%");
+                highlightElement(tagIndex, level);
+                //console.log(parent[2].location.href);
+                /*
+                const element = findElementByIndexAndLevel(frameDocument.querySelector('main'), tagIndex, level);
+
+                if (element) {
+                    element.classList.remove('highlight');
+                }*/
+            }
+</script>
+
+    </body>
+{% endblock %}

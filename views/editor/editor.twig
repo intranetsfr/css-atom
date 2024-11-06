@@ -2,11 +2,12 @@
 {% extends "../templates/layout.twig" %}
 
 {% block body %}
-	<frameset cols="60%,40%" borderColor="red">
+	<frameset cols="60%,40%" bordercolor="red">
 		<frame src="/editor/render/{{filename}}"/>
-		<frameset rows="100%,0%">
+		<frameset rows="100%,0%" id="frames">
 			<frame src="/editor/tree/{{filename}}"/>
 			<frame id="proprety"/>
 		</frameset>
 	</frameset>
 {% endblock %}
+

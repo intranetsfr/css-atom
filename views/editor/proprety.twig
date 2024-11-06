@@ -1,0 +1,75 @@
+{% set menu = false %}
+{% extends "../templates/layout.twig" %}
+{% block body %}
+    <fieldset class="margin--8">
+        <legend>Propriétés</legend>
+        {% if tagName %}
+            <form method="post">
+                <p>
+                    <strong>Tag :</strong>
+                    <select name="tag" onchange="updateTag()">
+                        <option disabled selected>Choisir un Tag</option>
+                        <option {% if tagName == "div" %} selected {% endif %} value="div">div</option>
+                        <option {% if tagName == "span" %} selected {% endif %} value="span">span</option>
+                        <option {% if tagName == "p" %} selected {% endif %} value="p">p</option>
+                        <option {% if tagName == "h1" %} selected {% endif %} value="h1">h1</option>
+                        <option {% if tagName == "h2" %} selected {% endif %} value="h2">h2</option>
+                        <option {% if tagName == "h3" %} selected {% endif %} value="h3">h3</option>
+                        <option {% if tagName == "h4" %} selected {% endif %} value="h4">h4</option>
+                        <option {% if tagName == "h5" %} selected {% endif %} value="h5">h5</option>
+                        <option {% if tagName == "h6" %} selected {% endif %} value="h6">h6</option>
+                    </select>
+                </p>
+                {% if classes is not empty %}
+                    <p>
+                        <strong>Classes :</strong>
+                        {% for classe in classes %}
+                            <div class="class-input">
+                                <input type="text" name="classes[]" value="{{ classe }}"/>
+                                <button type="button" onclick="removeClass(this)">Supprimer</button>
+                            </div>
+                        {% endfor %}
+                    </p>
+                    <p>
+                        <button type="button" onclick="addClass()">Ajouter une classe</button>
+                    </p>
+                {% else %}
+                    <p>Aucune classe assignée</p>
+                {% endif %}
+                <div class="text-align--center">
+                <input type="text" disabled name="tagIndex" value="{{tagIndex}}"/>
+                <input type="text" disabled name="level" value="{{level}}"/>
+                    <button type="reset">Réinitialiser</button>
+                    <button type="submit">Enregistrer</button>
+                </div>
+            </form>
+        {% else %}
+            <p>{{ error }}</p>
+        {% endif %}
+    </fieldset>
+
+    <script>
+        // Ajouter un champ de saisie pour une nouvelle classe
+        function addClass() {
+            const newClassInput = document.createElement('div');
+            newClassInput.classList.add('class-input');
+            newClassInput.innerHTML = `
+                <input type="text" name="classes[]" placeholder="Nouvelle classe" />
+                <button type="button" onclick="removeClass(this)">Supprimer</button>
+            `;
+            document.querySelector('form').insertBefore(newClassInput, document.querySelector('form').lastElementChild);
+        }
+
+        // Supprimer un champ de saisie de classe
+        function removeClass(button) {
+            button.parentElement.remove();
+        }
+
+        // Mettre à jour le tag sélectionné (si tu veux une logique côté client)
+        function updateTag() {
+            const selectedTag = document.querySelector('select[name="tag"]').value;
+            // Tu peux ajouter une logique pour appliquer ce changement au DOM ici
+            console.log('Tag sélectionné:', selectedTag);
+        }
+    </script>
+{% endblock %}
