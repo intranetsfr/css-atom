@@ -6,19 +6,28 @@
 		<link rel="stylesheet" href="/css/app.css"/>
 		<title>{{ title }}</title>
 	</head>
-
+	{% if body is not defined or body == "false" %}
 	<body class="margin--0">
+	{% if menu is not defined or menu == "false" %}
 		<div class="grid">
-			<div class="cell cell--6-col">
-				<h1 class="text-fs--10-desktop padding--0-desktop">css atom</h1>
+			<div class="cell cell--6-col cell--8-col-phone">
+				<h1 class="text-fs--48-desktop padding--0-desktop">CSS Atom</h1>
 			</div>
-			<div class="cell cell--6-col">bb</div>
+			<div class="cell cell--6-col text-align--right-desktop">
+				<a href="/">Home</a>
+				<a href="/gettingstarted">Getting Started</a>
+				<a href="/components">Components</a>
+				<a href="/editor">Editor</a>
+			</div>
 		</div>
 		<hr/>
+		{% endif %}
 		<main>
-
 			{% block body %}{% endblock %}
 		</main>
 	</body>
+	{% else %}
+			{% block body %}{% endblock %}
+	{% endif %}
 </html>
 

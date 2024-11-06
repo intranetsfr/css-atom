@@ -22,6 +22,7 @@ app.use(express.urlencoded({limit: '50mb', extended: true}));
 
 
 require("./routes/pages.routes")(app);
+require("./routes/editor.routes")(app);
 
 //twig
 app.set('views', ['views']);

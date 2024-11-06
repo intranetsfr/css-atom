@@ -1,0 +1,31 @@
+{% extends "../templates/layout.twig" %}
+{% block body %}
+	<div class="grid">
+		<div class="cell cell--6-col cell--3-offset">
+
+			<fieldset class="text-align--center">
+				<legend class="text-align--left">Create a new file</legend>
+
+				<form method="post">
+					<input type="text" name="filename" placeholder="Filename"/>.html
+					<br/>
+					<br/>
+					<button>create</button>
+				</form>
+			</fieldset>
+		</div>
+		<div class="cell cell--6-col cell--3-offset">
+
+			<ul>
+				{% for file in files %}
+					<li>
+                        <span>{{file}}</span>
+						<a href="/editor/{{file}}">edit 🖊️</a>
+						<a href="javascript:confirmRemove('{{file}}')">remove ❌</a>
+					</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+{% endblock %}
+

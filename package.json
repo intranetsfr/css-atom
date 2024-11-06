@@ -4,7 +4,7 @@
   "description": "CSS Atom Tool",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon -e .js,.twig, .css bin/www.js ",
+    "start": "nodemon -e .js,.twig, .css bin/www.js ",
     "build": "node-sass --include-path sass src/index.scss dist/cssatom.css",
     "min": "css-minify  --dir dist --file dist/cssatom.css -o dist/",
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -1,3 +1,13 @@
-body{
-    
+body {
+    background-color: gainsboro;
+}
+.cell{
+    background-color: red;
+    padding: 10px;
+}
+a{
+    text-decoration: none;
+}
+a:hover{
+    text-decoration: underline;
 }
