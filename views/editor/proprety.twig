@@ -47,9 +47,17 @@
             <p>{{ error }}</p>
         {% endif %}
     </fieldset>
+    <fieldset>
+        <legend>Option</legend>
+        <form method="post">
+            <input type="text" disabled name="tagIndex" value="{{tagIndex}}"/>
+            <input type="text" disabled name="level" value="{{level}}"/>
+            <button>delete</button>
+        </form>
+    </fieldset>
 
     <script>
-        // Ajouter un champ de saisie pour une nouvelle classe
+    
         function addClass() {
             const newClassInput = document.createElement('div');
             newClassInput.classList.add('class-input');
@@ -59,17 +67,22 @@
             `;
             document.querySelector('form').insertBefore(newClassInput, document.querySelector('form').lastElementChild);
         }
-
-        // Supprimer un champ de saisie de classe
         function removeClass(button) {
             button.parentElement.remove();
         }
 
-        // Mettre à jour le tag sélectionné (si tu veux une logique côté client)
         function updateTag() {
             const selectedTag = document.querySelector('select[name="tag"]').value;
             // Tu peux ajouter une logique pour appliquer ce changement au DOM ici
             console.log('Tag sélectionné:', selectedTag);
         }
+        {% if update %}
+            function update(){
+                window.parent[1].location.reload();
+                window.parent[0].location.reload();
+                
+            }
+            update();
+        {% endif %}
     </script>
 {% endblock %}

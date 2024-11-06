@@ -101,7 +101,7 @@ module.exports = (app) => {
 
   router.get("/proprety/:filename.html", (req, res) => {
     let data = {};
-    data.title = "Editor";
+    data.title = "Proprety";
 
     const filename = req.params.filename;
     data.tagIndex = parseInt(req.query.tagIndex, 10);
@@ -165,13 +165,85 @@ module.exports = (app) => {
       } else {
         data.error = "Élément non trouvé.";
       }
-
+      data.update = req.query.update;
       res.render("editor/proprety", data);
+
     });
   });
 
   router.post("/proprety/:filename.html", (req, res) => {
-    res.send({result: req.body})
-  })
+    const filename = req.params.filename;
+    const tagIndex = parseInt(req.query.tagIndex, 10);
+    const level = parseInt(req.query.level, 10);
+    const newTag = req.body.tag; // Nouveau tag choisi
+    const newClasses = req.body.classes || []; // Nouvelles classes envoyées par le formulaire
+    const filepath = `${testFolder}${filename}.html`;
+    
+    // Lire le fichier HTML
+    fs.readFile(filepath, "utf8", (err, html) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Erreur de lecture du fichier");
+      }
+
+      // Utiliser jsdom pour manipuler le DOM
+      const dom = new JSDOM(html);
+      
+      const document = dom.window.document;
+      //console.log("Contenu de <body>: ", document.body.innerHTML);
+
+      function findElementByIndexAndLevel(
+        root,
+        tagIndex,
+        level,
+        currentLevel = -1,
+        currentIndex = { value: -1 }
+      ) {
+        if (currentLevel === level) {
+          currentIndex.value++;
+          if (currentIndex.value === tagIndex) {
+            return root;
+          }
+        }
+
+        for (let child of root.children) {
+          const found = findElementByIndexAndLevel(
+            child,
+            tagIndex,
+            level,
+            currentLevel + 1,
+            currentIndex
+          );
+          if (found) {
+            return found;
+          }
+        }
+        return null;
+      }
+      const element = findElementByIndexAndLevel(
+        document.body,
+        tagIndex,
+        level
+      );
+      if (element) {
+        const newElement = document.createElement(newTag);
+        newElement.innerHTML = element.innerHTML; 
+        
+        newElement.className = newClasses.join(" ");
+        element.replaceWith(newElement);
+
+        const updatedHTML = document.body.innerHTML;
+        fs.writeFile(filepath, updatedHTML, "utf8", (writeErr) => {
+          if (writeErr) {
+            console.error(writeErr);
+            return res.status(500).send("Erreur lors de l'écriture du fichier");
+          }
+          res.redirect(`/editor/proprety/${filename}.html?tagIndex=${tagIndex}&level=${level}&update=true`)
+        });
+      } else {
+        res.status(404).send("Élément non trouvé");
+      }
+    });
+  });
   app.use("/editor", router);
 };

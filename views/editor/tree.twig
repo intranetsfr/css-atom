@@ -27,14 +27,9 @@
         <!-- Démarre avec le niveau 1 pour la racine -->
         {{ renderTree(tree, 0) }}
         <script>
-            function findElementByIndexAndLevel(root, tagIndex, level, currentLevel = 0, currentIndex = { value: -1 }) {
-                // Ajuster le point de départ pour ignorer le niveau du `<body>` ou `<main>`
-                if (root.tagName === 'BODY' || root.tagName === 'MAIN') {
-                    currentLevel--; // Réduit d'un niveau pour ne pas compter <body> ou <main>
-                }
-
-                // Vérifier si on a atteint le niveau souhaité
-                if (currentLevel === level) {
+            function findElementByIndexAndLevel(root, tagIndex, level, currentLevel = -1, currentIndex = { value: -1 }) {
+               
+               if (currentLevel === level) {
                     currentIndex.value++; // Incrémenter le compteur pour l'index
                     if (currentIndex.value === tagIndex) {
                         return root; // On a trouvé l'élément
@@ -56,7 +51,7 @@
                 const frameDocument = window.parent.frames[0].document;
 
                 // Commence la recherche dans le `<main>` pour ignorer `<body>` et `<main>`
-                const element = findElementByIndexAndLevel(frameDocument.querySelector('main'), tagIndex, level);
+                const element = findElementByIndexAndLevel(frameDocument.querySelector('body'), tagIndex, level);
 
                 if (element) {
                     element.classList.add('highlight');
@@ -66,7 +61,7 @@
             function removeHighlight(tagIndex, level) {
                 const frameDocument = window.parent.frames[0].document;
 
-                const element = findElementByIndexAndLevel(frameDocument.querySelector('main'), tagIndex, level);
+                const element = findElementByIndexAndLevel(frameDocument.querySelector('body'), tagIndex, level);
 
                 if (element) {
                     element.classList.remove('highlight');
