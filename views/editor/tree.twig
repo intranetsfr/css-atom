@@ -6,12 +6,20 @@
                 <a href="javascript:select({{ index}}, {{level}})"
                    onmouseover="highlightElement({{ index }}, {{ level }})"
                    onmouseout="removeHighlight({{ index }}, {{ level }})">
-                    <strong>{{ item.tag }}</strong>
+                    <strong>
+                    {% if item.class %}
+                        {{ item.class | join(', ') }}
+                        {% else %}
+                    {{ item.tag }}
+                        {% endif %}
+                    </strong>
                     {% if item.class is not empty %}
+                    {#
                         (Classes: {{ item.class | join(', ') }})
+                    #}
                     {% endif %}
-                    <a href="/editor/tree/{{filename}}?tagIndex={{index}}&level={{level}}&add=true">➕ add</a>
-                    <a href="/editor/tree/{{filename}}?tagIndex={{index}}&level={{level}}&add=true">📁 copy</a>
+                    <a href="/editor/tree/{{filename}}?tagIndex={{index}}&level={{level}}&action=add">➕ add</a>
+                    <a href="/editor/tree/{{filename}}?tagIndex={{index}}&level={{level}}&action=copy">📁 copy</a>
                 </a>
                 {% if item.children is not empty %}
                     {{ _self.renderTree(item.children, level + 1, filename) }}

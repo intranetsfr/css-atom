@@ -6,7 +6,7 @@ body {
     padding: 10px;
 } 
 .highlight{
-    background-color: rgba(0, 100, 0, .1);
+    background-color: rgba(255, 0, 0, 0.1);
 }ul.tree_list {
     padding-left: 15px; /* Déplacement des sous-éléments */
     margin: 0;

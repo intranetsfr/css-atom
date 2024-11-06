@@ -1,6 +1,5 @@
 const fs = require("fs");
 const htmlparser2 = require("htmlparser2");
-
 const { JSDOM } = require("jsdom");
 module.exports = (app) => {
   const router = require("express").Router();
@@ -57,7 +56,22 @@ module.exports = (app) => {
     }
     return null;
   }
+  function findParentNode(tree, targetNode) {
+    function recursiveSearch(nodes, parent = null) {
+        for (const node of nodes) {
+            if (node.nodeRef === targetNode.nodeRef.parent) {
+                return parent; // On renvoie le parent correspondant dans l’arborescence
+            }
+            if (node.children && node.children.length > 0) {
+                const result = recursiveSearch(node.children, node);
+                if (result) return result;
+            }
+        }
+        return null;
+    }
 
+    return recursiveSearch(tree);
+}
   router.get("/", (req, res) => {
     let data = {};
     data.title = "Editor";
@@ -108,15 +122,13 @@ module.exports = (app) => {
       res.render("editor/render", data);
     });
   });
-  const htmlparser2 = require("htmlparser2");
-  const fs = require("fs");
 
   router.get("/tree/:filename.html", (req, res) => {
     let data = {};
     data.title = "Editor";
     let filename = req.params.filename;
     data.filename = `${filename}.html`;
-    const { tagIndex, level, add } = req.query; // Extraction des paramètres de requête
+    const { tagIndex, level, action } = req.query; // Extraction des paramètres de requête
     const filePath = `${testFolder}${data.filename}`;
 
     fs.readFile(filePath, "utf8", (err, contentFile) => {
@@ -149,7 +161,7 @@ module.exports = (app) => {
       const tree = dom.map(parseNode).filter((node) => node); // Filtrer les `null`
 
       // Vérifier si on doit ajouter un élément
-      if (add === "true" && tagIndex !== undefined && level !== undefined) {
+      if (action === "add" && tagIndex !== undefined && level !== undefined) {
         const targetNode = findNodeByIndexAndLevel(
           tree,
           parseInt(tagIndex, 10),
@@ -157,7 +169,6 @@ module.exports = (app) => {
         );
 
         if (targetNode) {
-          // Création d'un nouvel élément div sans classe
           const newDiv = {
             type: "tag",
             name: "div",
@@ -165,10 +176,8 @@ module.exports = (app) => {
             children: [],
           };
 
-          // Ajout du nouvel élément au conteneur cible
           targetNode.nodeRef.children.push(newDiv);
 
-          // Sérialisation du DOM modifié et écriture dans le fichier
           const updatedHTML = dom
             .map((node) => htmlparser2.DomUtils.getOuterHTML(node))
             .join("");
@@ -180,9 +189,7 @@ module.exports = (app) => {
                 .status(500)
                 .send("Erreur lors de l'écriture du fichier");
             }
-            // Réponse confirmant la réussite de l'ajout
             data.tree = tree;
-            //res.render("editor/tree", data);
             res.redirect(
               `/editor/tree/${filename}.html?tagIndex=${tagIndex}&level=${level}`
             );
@@ -190,11 +197,50 @@ module.exports = (app) => {
         } else {
           res.status(404).send("Conteneur cible introuvable");
         }
-      } else {
-        // Sinon, on affiche simplement l'arbre
+      } else if (action === "copy" && tagIndex !== undefined && level !== undefined) {
+        const targetNode = findNodeByIndexAndLevel(
+            tree,
+            parseInt(tagIndex, 10),
+            parseInt(level, 10)
+        );
+    
+        console.log("Target Node:", targetNode); // Diagnostic
+    
+        if (targetNode) {
+            const parentNode = findParentNode(tree, targetNode);
+    
+            if (parentNode) {
+                const newElement = {
+                    type: "tag",
+                    name: targetNode.nodeRef.name,
+                    attribs: { ...targetNode.nodeRef.attribs },
+                    children: [],
+                };
+    
+                parentNode.nodeRef.children.push(newElement);
+    
+                const updatedHTML = dom
+                    .map((node) => htmlparser2.DomUtils.getOuterHTML(node))
+                    .join("");
+    
+                fs.writeFile(filePath, updatedHTML, "utf8", (writeErr) => {
+                    if (writeErr) {
+                        console.error(writeErr);
+                        return res.status(500).send("Erreur lors de l'écriture du fichier");
+                    }
+                    res.redirect(`/editor/tree/${filename}.html?tagIndex=${tagIndex}&level=${level}`);
+                });
+            } else {
+                console.error("Parent introuvable pour le nœud cible:", targetNode); // Diagnostic
+                res.status(404).send("Parent introuvable");
+            }
+        } else {
+            res.status(404).send("Conteneur cible introuvable");
+        }
+    } else {
         data.tree = tree;
         res.render("editor/tree", data);
-      }
+    }
     });
   });
 
